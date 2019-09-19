@@ -1,0 +1,46 @@
+# See README for how to configure these params
+
+pullers:
+  privat:
+    id: <ID_HERE>
+    token: <TOKEN_HERE>
+  monobank:
+    id: <ID_HERE>
+    token: <TOKEN_HERE>
+
+pushers:
+  google:
+    id: <ID_HERE>
+    secret: <SECRET_HERE>
+  csv:
+    file_format: "{year}-{month}-{provider}.csv"
+    directory: export
+
+  slack:
+    token: <TOKEN_HERE>
+    emoji: heart
+
+    general_date: 20
+    general_time: '13:00'
+    private_date: 9
+    private_time: '13:00'
+
+    general_text: >
+      PLEASE PAY YOUR DEBTS
+    private_text: >
+      A lot of general_text
+      HERE
+
+    # Slack nickname => real name
+    # moneybot need at least name and surname in order
+    # to recognize you
+    members:
+      user1: Member One
+      user2: Member Two
+
+update_interval: 600  # seconds
+db_prefix: db
+log_level: DEBUG
+monthly_donate: 450
+
+# See README for how to configure these params

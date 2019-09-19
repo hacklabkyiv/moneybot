@@ -1,0 +1,39 @@
+import logging
+import slack
+from pprint import pformat
+
+from moneybot.base import Puller as BasePuller, get_members
+
+
+class Puller(BasePuller):
+
+    def __init__(self, config, prefix, monthly_donate, **kwargs):
+        logging.info(f'{self} started')
+
+        self.d = monthly_donate
+        self.e = ':{}:'.format(config['emoji'])
+
+        self.client = slack.RTMClient(token=config['token'], run_async=True)
+        self.client.start()
+        self.members = get_members(config['members'], self.client)
+
+        m = pformat(self.members)
+        logging.info(f'Recognized users:\n{m}')
+
+    @slack.RTMClient.run_on(event='message')
+    async def register(self, **payload):
+        data = payload['data']
+        web_client = payload['web_client']
+        if 'Hello' in data['text']:
+            channel_id = data['channel']
+            thread_ts = data['ts']
+            user = data['user']
+
+            await web_client.chat_postMessage(
+                channel=channel_id,
+                text=f"Hi <@{user}>!",
+                thread_ts=thread_ts
+            )
+
+    async def pull(self):
+        pass
