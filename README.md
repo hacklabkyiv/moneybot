@@ -49,7 +49,7 @@ Install `docker` and then:
 $ git clone https://github.com/dethoter/moneybot && cd moneybot
 $ cp config.yml.template config.yml
 $ docker build -t moneybot .
-#$ docker run -d --name moneybot --restart=unless-stopped --env-file=.env -it -v ./:/app moneybot
+$ docker run -d --name moneybot --restart=unless-stopped -it -v $PWD:/app -v $PWD/data:/app/data moneybot
 ```
 
 This `Dockerfile` from repo contains setup for RaspberryPi.
