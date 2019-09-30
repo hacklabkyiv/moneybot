@@ -147,6 +147,11 @@ class Pusher(BasePusher):
                     continue
 
                 user_donations = calc_user_donations(m, stats)
+                if m.donator:
+                    logging.info(f'Skip notification of the donator {m}')
+                    self.s.set_dt(m.slack_id, self.private_rt)
+                    continue
+
                 if user_donations < self.d:
                     await self.pm(m, user_donations, self.private_rt)
 
