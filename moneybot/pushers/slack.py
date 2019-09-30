@@ -6,7 +6,7 @@ import slack
 import typing as t
 from pprint import pformat
 
-from moneybot.base import Stats, Pusher as BasePusher, get_members
+from moneybot.base import Stats, Pusher as BasePusher, get_members, Member
 
 
 def next_fire_dt(now: datetime, remind_day: int, remind_time: time) -> datetime:
@@ -18,14 +18,16 @@ def next_fire_dt(now: datetime, remind_day: int, remind_time: time) -> datetime:
                        microsecond=0)
 
 
-def get_user_donations(user: str, names: t.Iterable, stats: Stats) -> float:
+def calc_user_donations(member: Member, stats: Stats) -> float:
     """Calculate user donations from given monthly stats."""
     user_donations = 0.0
     for a in stats.accounts:
         for tr in stats.transactions(a):
             ll = tr.osnd.lower()
-            if user in ll or any(n in ll for n in names):
+            pt = member.payment_tokens
+            if member.slack_nickname in ll or any(n in ll for n in pt):
                 user_donations += float(tr.sum)
+                tr.member_nickname = member.slack_nickname
 
     return user_donations
 
@@ -103,19 +105,19 @@ class Pusher(BasePusher):
             logging.info('Recognized users:\n{}'.format(pformat(self._members)))
         return self._members
 
-    async def pm(self, user: str, part: float, fire_time: datetime):
+    async def pm(self, member: Member, part: float, fire_time: datetime):
         """Send a private message."""
-        logging.info(f'Posting message for {user}')
-        msg = self.private_text.format(username=user,
+        logging.info(f'Posting message for {member}')
+        msg = self.private_text.format(username=member.slack_nickname,
                                        price=self.d,
                                        part=part,
                                        emoji=self.e)
         response = await self.client.chat_postMessage(
-            channel=user, text=msg, as_user=True, link_names=True)
+            channel=member.slack_id, text=msg, as_user=True, link_names=True)
         if not response['ok']:
-            logging.error(f'Failed to notify {user}')
+            logging.error(f'Failed to notify {member}')
             return
-        self.s.set_dt(user, fire_time)
+        self.s.set_dt(member.slack_id, fire_time)
 
     async def general(self, fire_time: datetime):
         """Send a #general reminder."""
@@ -135,18 +137,18 @@ class Pusher(BasePusher):
         self.general_rt = self.general_rt.replace(month=now.month)
         self.private_rt = self.private_rt.replace(month=now.month)
 
-        # if self.general_rt <= now and not self.s.fired(self.g, self.general_rt):
-        #     await self.general(self.general_rt)
+        if self.general_rt <= now and not self.s.fired(self.g, self.general_rt):
+            await self.general(self.general_rt)
 
         members = await self._get_members()
         if members is not None and self.private_rt <= now:
-            for user, names in members.items():
-                if self.s.fired(user, self.private_rt):
+            for m in members:
+                if self.s.fired(m.slack_id, self.private_rt):
                     continue
 
-                user_donations = get_user_donations(user, names, stats)
+                user_donations = calc_user_donations(m, stats)
                 if user_donations < self.d:
-                    await self.pm(user, user_donations, self.private_rt)
+                    await self.pm(m, user_donations, self.private_rt)
 
     def __repr__(self):
         return 'Reminder::slack'

@@ -15,6 +15,7 @@ def format_csv(tr: Transaction) -> t.List:
         tr.osnd,
         tr.sender_account,
         tr.sender_name,
+        tr.member_nickname,
     )]
 
 

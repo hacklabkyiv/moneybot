@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from collections import UserDict
+import typing as t
 
 
 @dataclass(order=True, frozen=True)
@@ -14,6 +15,7 @@ class Transaction:
     osnd: str
     sender_account: str
     sender_name: str
+    member_nickname: t.Optional[str] = None
 
 
 class Stats(UserDict, metaclass=ABCMeta):
