@@ -15,14 +15,21 @@ class Moneybot:
     def __init__(self, config):
         self._config = config
 
-        for w in ('pullers', 'pushers'):
-            workers = [
-                getattr(importlib.import_module(f'moneybot.{w}.{p}'),
-                        w[:-1].capitalize())(cc, prefix=config['db_prefix'],
-                                             monthly_donate=config['monthly_donate'])
-                for p, cc in config[w].items()
-            ]
-            setattr(self, w, workers)
+        self.pullers = []
+        for p in ('privat',):
+            cc = config['pullers'][p]
+            pp = importlib.import_module(f'moneybot.pullers.{p}').Puller(
+                cc, prefix=config['db_prefix'],
+                monthly_donate=config['monthly_donate'])
+            self.pullers.append(pp)
+
+        self.pushers = []
+        for p in ('slack', 'csv'):
+            cc = config['pushers'][p]
+            pp = importlib.import_module(f'moneybot.pushers.{p}').Pusher(
+                cc, prefix=config['db_prefix'],
+                monthly_donate=config['monthly_donate'])
+            self.pushers.append(pp)
 
     async def flow(self):
         """The main loop"""
