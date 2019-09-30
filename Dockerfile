@@ -1,9 +1,8 @@
 FROM python:3.7-slim-buster
 RUN apt update -y
 
-# libleveldb1v5 libleveldb-dev 
 RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev --no-install-recommends
-RUN apt-get install -y python3-leveldb --no-install-recommends
+RUN apt-get install -y libleveldb1d libleveldb-dev python3-leveldb --no-install-recommends
 
 RUN pip install -U pip
 
