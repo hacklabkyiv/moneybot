@@ -31,13 +31,14 @@ def get_members(config_members, slack_users) -> t.List[Member]:
             logging.warning(f'No config for user {u_id}')
             continue
 
-        names = config_members.get('names')
+        user = config_members[u_id]
+        names = user.get('names')
         if names is None:
             logging.warning(f'Invalid config for user {u_id}')
             continue
 
-        nickname = config_members.get('nickname', u['name'])
-        donator = config_members.get('donator', False)
+        nickname = user.get('nickname', u['name'])
+        donator = user.get('donator', False)
 
         m = Member(payment_tokens=[n.lower() for n in names],
                    slack_id=u_id,
