@@ -11,7 +11,7 @@ COPY requirements.txt /tmp/dependencies/
 RUN pip install -Ur /tmp/dependencies/requirements.txt
 
 COPY moneybot/ /app/moneybot/
-COPY app.py /app/
+COPY config.yml logging.yml app.py /app/
 WORKDIR /app
 
 ENTRYPOINT ["python"]
