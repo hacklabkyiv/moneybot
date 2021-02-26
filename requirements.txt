@@ -3,7 +3,7 @@ slackclient==2.1.0
 websocket==0.2.1
 #cryptography==2.7
 ujson==1.35
-aiohttp==3.5.4
+aiohttp==3.7.4
 aiodns==2.0.0
 cchardet==2.1.4
 pyyaml==5.1.1
